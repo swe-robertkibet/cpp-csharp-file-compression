@@ -1,0 +1,31 @@
+suggested pseudocode for RLE compression
+
+```cpp
+function compressRLE(inputFile, outputFile):
+    open inputFile for reading
+    open outputFile for writing
+    currentChar = None
+    count = 0
+
+    for char in inputFile:
+        if char == currentChar:
+            count += 1
+        else:
+            if currentChar is not None:
+                write (count, currentChar) to outputFile
+            currentChar = char
+            count = 1
+
+    write (count, currentChar) to outputFile
+    close files
+
+function decompressRLE(inputFile, outputFile):
+    open inputFile for reading
+    open outputFile for writing
+
+    while not end of inputFile:
+        read count, char
+        write char repeated count times to outputFile
+
+    close files
+```
