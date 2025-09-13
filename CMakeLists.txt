@@ -8,22 +8,32 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(include)
 include_directories(external)
 
-# Source files
-set(SOURCES
-    src/main.cpp
+# Library source files (without main.cpp)
+set(LIB_SOURCES
     src/rle.cpp
     src/huffman.cpp
     src/lzw.cpp
+    src/compression_api.cpp
 )
 
+# Executable source files
+set(EXE_SOURCES
+    src/main.cpp
+)
+
+# Create shared library for C# interop
+add_library(compression_lib SHARED ${LIB_SOURCES})
+
 # Create executable
-add_executable(compress ${SOURCES})
+add_executable(compress ${EXE_SOURCES} ${LIB_SOURCES})
 
 # Enable compiler warnings
 if(MSVC)
     target_compile_options(compress PRIVATE /W4)
+    target_compile_options(compression_lib PRIVATE /W4)
 else()
     target_compile_options(compress PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(compression_lib PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
 # Optional: Create tests (if you add test files later)
