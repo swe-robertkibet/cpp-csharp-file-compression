@@ -97,6 +97,15 @@ int main(int argc, char* argv[]) {
                 }
                 success = HuffmanCompressor::decompress(inputFile, outputFile);
             }
+        } else if (algorithm == "lzw") {
+            if (mode == "compress") {
+                success = LZWCompressor::compress(inputFile, outputFile);
+            } else if (mode == "decompress") {
+                if (!LZWCompressor::isValidLZWFile(inputFile)) {
+                    std::cerr << "Warning: Input file may not be a valid LZW compressed file" << std::endl;
+                }
+                success = LZWCompressor::decompress(inputFile, outputFile);
+            }
         }
         
         if (success) {
