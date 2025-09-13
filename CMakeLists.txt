@@ -12,6 +12,7 @@ include_directories(external)
 set(SOURCES
     src/main.cpp
     src/rle.cpp
+    src/huffman.cpp
 )
 
 # Create executable
@@ -33,6 +34,7 @@ if(BUILD_TESTS)
     set(TEST_SOURCES
         tests/test_rle.cpp
         src/rle.cpp
+        src/huffman.cpp
     )
     
     add_executable(test_rle ${TEST_SOURCES})
