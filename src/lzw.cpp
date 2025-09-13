@@ -9,12 +9,10 @@ BitWriter::~BitWriter() {
 }
 
 void BitWriter::writeBits(uint32_t value, int numBits) {
-    while (numBits > 0) {
-        int bitsToWrite = std::min(numBits, 32 - bitsInBuffer_);
-        buffer_ |= (value & ((1u << bitsToWrite) - 1)) << (32 - bitsInBuffer_ - bitsToWrite);
-        bitsInBuffer_ += bitsToWrite;
-        numBits -= bitsToWrite;
-        value >>= bitsToWrite;
+    for (int i = numBits - 1; i >= 0; i--) {
+        uint32_t bit = (value >> i) & 1;
+        buffer_ = (buffer_ << 1) | bit;
+        bitsInBuffer_++;
         
         if (bitsInBuffer_ == 32) {
             uint8_t bytes[4];
@@ -31,6 +29,7 @@ void BitWriter::writeBits(uint32_t value, int numBits) {
 
 void BitWriter::flush() {
     if (bitsInBuffer_ > 0) {
+        buffer_ <<= (32 - bitsInBuffer_);
         int bytesToWrite = (bitsInBuffer_ + 7) / 8;
         for (int i = 0; i < bytesToWrite; i++) {
             uint8_t byte = (buffer_ >> (24 - i * 8)) & 0xFF;
@@ -45,21 +44,20 @@ BitReader::BitReader(std::ifstream& input) : input_(input), buffer_(0), bitsInBu
 
 uint32_t BitReader::readBits(int numBits) {
     uint32_t result = 0;
-    int bitsRead = 0;
     
-    while (bitsRead < numBits && !endOfFile_) {
+    for (int i = numBits - 1; i >= 0; i--) {
         if (bitsInBuffer_ == 0) {
             fillBuffer();
+            if (endOfFile_ && bitsInBuffer_ == 0) {
+                break;
+            }
         }
         
         if (bitsInBuffer_ > 0) {
-            int bitsToRead = std::min(numBits - bitsRead, bitsInBuffer_);
-            uint32_t mask = (1u << bitsToRead) - 1;
-            uint32_t bits = (buffer_ >> (32 - bitsToRead)) & mask;
-            result |= bits << (numBits - bitsRead - bitsToRead);
-            buffer_ <<= bitsToRead;
-            bitsInBuffer_ -= bitsToRead;
-            bitsRead += bitsToRead;
+            uint32_t bit = (buffer_ >> 31) & 1;
+            result |= bit << i;
+            buffer_ <<= 1;
+            bitsInBuffer_--;
         }
     }
     
