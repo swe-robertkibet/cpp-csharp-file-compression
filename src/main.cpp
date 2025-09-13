@@ -25,6 +25,8 @@ int main(int argc, char* argv[]) {
             std::cout << "  ./compress --algo rle --mode decompress --input sample.rle --output restored.txt" << std::endl;
             std::cout << "  ./compress --algo huffman --mode compress --input sample.txt --output sample.huf" << std::endl;
             std::cout << "  ./compress --algo huffman --mode decompress --input sample.huf --output restored.txt" << std::endl;
+            std::cout << "  ./compress --algo lzw --mode compress --input sample.txt --output sample.lzw" << std::endl;
+            std::cout << "  ./compress --algo lzw --mode decompress --input sample.lzw --output restored.txt" << std::endl;
             return 0;
         }
         
@@ -53,8 +55,8 @@ int main(int argc, char* argv[]) {
         std::string inputFile = result["input"].as<std::string>();
         std::string outputFile = result["output"].as<std::string>();
         
-        if (algorithm != "rle" && algorithm != "huffman") {
-            std::cerr << "Error: Supported algorithms are 'rle' and 'huffman'" << std::endl;
+        if (algorithm != "rle" && algorithm != "huffman" && algorithm != "lzw") {
+            std::cerr << "Error: Supported algorithms are 'rle', 'huffman', and 'lzw'" << std::endl;
             return 1;
         }
         
