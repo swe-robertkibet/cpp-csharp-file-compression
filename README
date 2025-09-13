@@ -29,3 +29,52 @@ function decompressRLE(inputFile, outputFile):
 
     close files
 ```
+
+suggested psudocode for huffman coding
+
+```cpp
+function buildFrequencyTable(inputFile):
+    freq = empty map
+    for char in inputFile:
+        freq[char] += 1
+    return freq
+
+function buildHuffmanTree(freq):
+    create priority queue pq
+    for each char, count in freq:
+        create node and push to pq
+
+    while pq.size > 1:
+        left = pq.pop()
+        right = pq.pop()
+        newNode = Node(left + right)  # sum of frequencies
+        pq.push(newNode)
+
+    return pq.pop()  # root node
+
+function generateCodes(node, prefix="", codeMap={}):
+    if node is leaf:
+        codeMap[node.char] = prefix
+    else:
+        generateCodes(node.left, prefix + "0", codeMap)
+        generateCodes(node.right, prefix + "1", codeMap)
+    return codeMap
+
+function compressHuffman(inputFile, outputFile):
+    freq = buildFrequencyTable(inputFile)
+    root = buildHuffmanTree(freq)
+    codeMap = generateCodes(root)
+    write codeMap to outputFile
+    for char in inputFile:
+        write codeMap[char] bits to outputFile
+
+function decompressHuffman(inputFile, outputFile):
+    read codeMap from inputFile
+    currentBits = ""
+    while not end of inputFile:
+        currentBits += read next bit
+        if currentBits in codeMap:
+            write codeMap[currentBits] to outputFile
+            currentBits = ""
+
+```
