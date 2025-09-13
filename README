@@ -78,3 +78,36 @@ function decompressHuffman(inputFile, outputFile):
             currentBits = ""
 
 ```
+
+
+suggested psudocode for LZW (Lempel–Ziv–Welch)
+
+```cpp
+function compressLZW(inputFile, outputFile):
+    dict = initialize dictionary with all single characters
+    string = ""
+    for char in inputFile:
+        stringPlusChar = string + char
+        if stringPlusChar in dict:
+            string = stringPlusChar
+        else:
+            write dict[string] to outputFile
+            add stringPlusChar to dict with next available code
+            string = char
+    write dict[string] to outputFile
+
+function decompressLZW(inputFile, outputFile):
+    dict = initialize dictionary with all single characters
+    prevCode = read next code from inputFile
+    write dict[prevCode] to outputFile
+
+    for code in inputFile:
+        if code in dict:
+            entry = dict[code]
+        else:
+            entry = dict[prevCode] + first character of dict[prevCode]
+        write entry to outputFile
+        add dict[prevCode] + first character of entry to dict
+        prevCode = code
+
+```
