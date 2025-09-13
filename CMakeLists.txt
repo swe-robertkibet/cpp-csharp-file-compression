@@ -13,6 +13,7 @@ set(SOURCES
     src/main.cpp
     src/rle.cpp
     src/huffman.cpp
+    src/lzw.cpp
 )
 
 # Create executable
@@ -35,6 +36,7 @@ if(BUILD_TESTS)
         tests/test_rle.cpp
         src/rle.cpp
         src/huffman.cpp
+        src/lzw.cpp
     )
     
     add_executable(test_rle ${TEST_SOURCES})
