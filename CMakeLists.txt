@@ -13,6 +13,7 @@ set(LIB_SOURCES
     src/rle.cpp
     src/huffman.cpp
     src/lzw.cpp
+    src/compression_api.cpp
 )
 
 # Executable source files
