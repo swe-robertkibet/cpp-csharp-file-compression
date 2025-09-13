@@ -1,3 +1,8 @@
+// dear future dev, i spend a lot of time trying to figure out why
+// lzw decompression was truncating output (losing final characters)
+// and i fixed it by wrapping bitwriter/bitreader in scoped blocks
+// so their destructors call flush() before file streams are closed
+
 #include "lzw.h"
 #include <iostream>
 #include <filesystem>
