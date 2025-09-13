@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:CompressionTool.ViewModels"
+        xmlns:views="using:CompressionTool.Views"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
@@ -71,7 +72,7 @@
                         <StackPanel>
                             <TextBlock Text="Compression Algorithm" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50" Margin="0,0,0,12"/>
                             <ComboBox ItemsSource="{Binding AvailableAlgorithms}"
-                                      SelectedItem="{Binding SelectedAlgorithm, Converter={x:Static local:AlgorithmConverter.Instance}}"
+                                      SelectedItem="{Binding SelectedAlgorithmOption}"
                                       MinWidth="300" FontSize="14">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
@@ -116,7 +117,7 @@
                         </StackPanel>
 
                         <!-- Execute Button -->
-                        <Button Content="{Binding IsCompression, Converter={x:Static local:OperationTextConverter.Instance}}"
+                        <Button Content="{Binding IsCompression, Converter={x:Static views:OperationTextConverter.Instance}}"
                                 Command="{Binding ExecuteOperationCommand}"
                                 IsEnabled="{Binding !IsOperationInProgress}"
                                 Background="#27AE60" Foreground="White" FontSize="16" FontWeight="Bold"

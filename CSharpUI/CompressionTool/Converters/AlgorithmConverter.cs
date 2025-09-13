@@ -16,7 +16,7 @@ public class AlgorithmConverter : IValueConverter
         {
             return Array.Find(options, o => o.Algorithm == algorithm);
         }
-        return null!;
+        return null;
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

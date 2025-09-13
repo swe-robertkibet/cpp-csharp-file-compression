@@ -5,3 +5,34 @@ tests
 *.huf
 *.lzw
 *.rle
+
+# C# / .NET Build Outputs
+CSharpUI/**/bin/
+CSharpUI/**/obj/
+*.dll
+*.pdb
+*.exe
+*.cache
+*.user
+*.suo
+*.sln.docstates
+
+# NuGet
+packages/
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Visual Studio / IDEs
+.vs/
+.vscode/
+*.userprefs
+.DS_Store
+
+# .NET Core / ASP.NET
+project.json
+project.fragment.lock.json
+artifacts/
+*.log
+*.tmp

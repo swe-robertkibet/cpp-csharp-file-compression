@@ -129,9 +129,9 @@ public class CompressionService
                 CompressedSizeBytes = metrics.CompressedSizeBytes,
                 CompressionRatio = metrics.CompressionRatio,
                 CompressionTimeMs = metrics.CompressionTimeMs,
-                DecompressionTimeMs = 0, // Not applicable for compression
+                DecompressionTimeMs = 0,
                 CompressionSpeedMbps = metrics.CompressionSpeedMbps,
-                DecompressionSpeedMbps = 0 // Not applicable for compression
+                DecompressionSpeedMbps = 0
             };
         }
         catch (Exception ex)
@@ -158,9 +158,9 @@ public class CompressionService
                 OriginalSizeBytes = metrics.OriginalSizeBytes,
                 CompressedSizeBytes = metrics.CompressedSizeBytes,
                 CompressionRatio = metrics.CompressionRatio,
-                CompressionTimeMs = 0, // Not applicable for decompression
+                CompressionTimeMs = 0,
                 DecompressionTimeMs = metrics.DecompressionTimeMs,
-                CompressionSpeedMbps = 0, // Not applicable for decompression
+                CompressionSpeedMbps = 0,
                 DecompressionSpeedMbps = metrics.DecompressionSpeedMbps
             };
         }

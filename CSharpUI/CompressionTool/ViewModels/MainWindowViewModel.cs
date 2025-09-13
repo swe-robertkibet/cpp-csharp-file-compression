@@ -23,6 +23,9 @@ public partial class MainWindowViewModel : ViewModelBase
     private CompressionAlgorithm _selectedAlgorithm = CompressionAlgorithm.LZW;
 
     [ObservableProperty]
+    private AlgorithmOption _selectedAlgorithmOption;
+
+    [ObservableProperty]
     private bool _isCompression = true;
 
     [ObservableProperty]
@@ -50,11 +53,12 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel()
     {
         _compressionService = new CompressionService();
+        _selectedAlgorithmOption = AvailableAlgorithms[0]; // Default to LZW
         LogMessages.Add($"Application started - {DateTime.Now:HH:mm:ss}");
     }
 
     [RelayCommand]
-    private async Task BrowseInputFile()
+    private void BrowseInputFile()
     {
         // This will be implemented with platform-specific file dialogs
         // For now, we'll use a placeholder
@@ -62,7 +66,7 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task BrowseOutputFile()
+    private void BrowseOutputFile()
     {
         // This will be implemented with platform-specific file dialogs
         LogMessages.Add($"Browse output file requested - {DateTime.Now:HH:mm:ss}");
@@ -170,6 +174,14 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         UpdateSuggestedOutputPath();
         LogMessages.Add($"Algorithm changed to {_compressionService.GetAlgorithmName(value)} - {DateTime.Now:HH:mm:ss}");
+    }
+
+    partial void OnSelectedAlgorithmOptionChanged(AlgorithmOption value)
+    {
+        if (value != null)
+        {
+            SelectedAlgorithm = value.Algorithm;
+        }
     }
 
     private void UpdateSuggestedOutputPath()
