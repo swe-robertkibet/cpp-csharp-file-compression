@@ -86,5 +86,9 @@ public class TestConsole
         }
 
         Console.WriteLine("=== All Tests Completed ===");
+
+        // Test file dialog service
+        Console.WriteLine();
+        FileDialogTest.TestFileDialogService();
     }
 }

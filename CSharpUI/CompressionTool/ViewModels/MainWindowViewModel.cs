@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CompressionTool.Models;
@@ -12,6 +14,7 @@ namespace CompressionTool.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly CompressionService _compressionService;
+    private readonly IFileDialogService _fileDialogService;
 
     [ObservableProperty]
     private string _inputFilePath = string.Empty;
@@ -50,26 +53,80 @@ public partial class MainWindowViewModel : ViewModelBase
         new AlgorithmOption { Name = "Huffman Coding", Algorithm = CompressionAlgorithm.Huffman, Description = "Optimal for text with uneven character frequencies" }
     };
 
-    public MainWindowViewModel()
+    // File type filters for dialogs
+    private static readonly FilePickerFileType TextFileType = new("Text Files")
+    {
+        Patterns = new[] { "*.txt", "*.text" },
+        MimeTypes = new[] { "text/plain" }
+    };
+
+    private static readonly FilePickerFileType CompressedFileType = new("Compressed Files")
+    {
+        Patterns = new[] { "*.huf", "*.lzw", "*.rle" }
+    };
+
+    private static readonly FilePickerFileType HuffmanFileType = new("Huffman Files")
+    {
+        Patterns = new[] { "*.huf" }
+    };
+
+    private static readonly FilePickerFileType LzwFileType = new("LZW Files")
+    {
+        Patterns = new[] { "*.lzw" }
+    };
+
+    private static readonly FilePickerFileType RleFileType = new("RLE Files")
+    {
+        Patterns = new[] { "*.rle" }
+    };
+
+    public MainWindowViewModel(IFileDialogService fileDialogService)
     {
         _compressionService = new CompressionService();
+        _fileDialogService = fileDialogService;
         _selectedAlgorithmOption = AvailableAlgorithms[0]; // Default to LZW
         LogMessages.Add($"Application started - {DateTime.Now:HH:mm:ss}");
     }
 
     [RelayCommand]
-    private void BrowseInputFile()
+    private async Task BrowseInputFileAsync()
     {
-        // This will be implemented with platform-specific file dialogs
-        // For now, we'll use a placeholder
-        LogMessages.Add($"Browse input file requested - {DateTime.Now:HH:mm:ss}");
+        try
+        {
+            var fileTypes = GetInputFileTypes();
+            var selectedFile = await _fileDialogService.OpenFileAsync("Select Input File", fileTypes);
+
+            if (!string.IsNullOrEmpty(selectedFile))
+            {
+                InputFilePath = selectedFile;
+                LogMessages.Add($"Selected input file: {Path.GetFileName(selectedFile)} - {DateTime.Now:HH:mm:ss}");
+            }
+        }
+        catch (Exception ex)
+        {
+            LogMessages.Add($"Error browsing input file: {ex.Message} - {DateTime.Now:HH:mm:ss}");
+        }
     }
 
     [RelayCommand]
-    private void BrowseOutputFile()
+    private async Task BrowseOutputFileAsync()
     {
-        // This will be implemented with platform-specific file dialogs
-        LogMessages.Add($"Browse output file requested - {DateTime.Now:HH:mm:ss}");
+        try
+        {
+            var fileTypes = GetOutputFileTypes();
+            string defaultName = GetSuggestedOutputFileName();
+            var selectedFile = await _fileDialogService.SaveFileAsync("Save Output File", defaultName, fileTypes);
+
+            if (!string.IsNullOrEmpty(selectedFile))
+            {
+                OutputFilePath = selectedFile;
+                LogMessages.Add($"Selected output file: {Path.GetFileName(selectedFile)} - {DateTime.Now:HH:mm:ss}");
+            }
+        }
+        catch (Exception ex)
+        {
+            LogMessages.Add($"Error browsing output file: {ex.Message} - {DateTime.Now:HH:mm:ss}");
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanExecuteOperation))]
@@ -201,6 +258,58 @@ public partial class MainWindowViewModel : ViewModelBase
             CompressionAlgorithm.LZW => ".lzw",
             _ => ".compressed"
         };
+    }
+
+    private IReadOnlyList<FilePickerFileType> GetInputFileTypes()
+    {
+        if (IsCompression)
+        {
+            return new[] { TextFileType, FilePickerFileTypes.All };
+        }
+        else
+        {
+            return SelectedAlgorithm switch
+            {
+                CompressionAlgorithm.Huffman => new[] { HuffmanFileType, CompressedFileType, FilePickerFileTypes.All },
+                CompressionAlgorithm.LZW => new[] { LzwFileType, CompressedFileType, FilePickerFileTypes.All },
+                CompressionAlgorithm.RLE => new[] { RleFileType, CompressedFileType, FilePickerFileTypes.All },
+                _ => new[] { CompressedFileType, FilePickerFileTypes.All }
+            };
+        }
+    }
+
+    private IReadOnlyList<FilePickerFileType> GetOutputFileTypes()
+    {
+        if (IsCompression)
+        {
+            return SelectedAlgorithm switch
+            {
+                CompressionAlgorithm.Huffman => new[] { HuffmanFileType, FilePickerFileTypes.All },
+                CompressionAlgorithm.LZW => new[] { LzwFileType, FilePickerFileTypes.All },
+                CompressionAlgorithm.RLE => new[] { RleFileType, FilePickerFileTypes.All },
+                _ => new[] { FilePickerFileTypes.All }
+            };
+        }
+        else
+        {
+            return new[] { TextFileType, FilePickerFileTypes.All };
+        }
+    }
+
+    private string GetSuggestedOutputFileName()
+    {
+        if (string.IsNullOrWhiteSpace(InputFilePath))
+            return string.Empty;
+
+        string baseName = Path.GetFileNameWithoutExtension(InputFilePath);
+        string extension = IsCompression ? GetCompressionExtension() : ".txt";
+
+        if (!IsCompression)
+        {
+            baseName = baseName.Replace("_compressed", "").Replace("_decompressed", "");
+        }
+
+        return $"{baseName}{(IsCompression ? "_compressed" : "_decompressed")}{extension}";
     }
 
     [RelayCommand]
