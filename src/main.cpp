@@ -76,13 +76,24 @@ int main(int argc, char* argv[]) {
         
         bool success = false;
         
-        if (mode == "compress") {
-            success = RLECompressor::compress(inputFile, outputFile);
-        } else if (mode == "decompress") {
-            if (!RLECompressor::isValidRLEFile(inputFile)) {
-                std::cerr << "Warning: Input file may not be a valid RLE compressed file" << std::endl;
+        if (algorithm == "rle") {
+            if (mode == "compress") {
+                success = RLECompressor::compress(inputFile, outputFile);
+            } else if (mode == "decompress") {
+                if (!RLECompressor::isValidRLEFile(inputFile)) {
+                    std::cerr << "Warning: Input file may not be a valid RLE compressed file" << std::endl;
+                }
+                success = RLECompressor::decompress(inputFile, outputFile);
             }
-            success = RLECompressor::decompress(inputFile, outputFile);
+        } else if (algorithm == "huffman") {
+            if (mode == "compress") {
+                success = HuffmanCompressor::compress(inputFile, outputFile);
+            } else if (mode == "decompress") {
+                if (!HuffmanCompressor::isValidHuffmanFile(inputFile)) {
+                    std::cerr << "Warning: Input file may not be a valid Huffman compressed file" << std::endl;
+                }
+                success = HuffmanCompressor::decompress(inputFile, outputFile);
+            }
         }
         
         if (success) {
