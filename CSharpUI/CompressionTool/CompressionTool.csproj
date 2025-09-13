@@ -9,8 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\build\libcompression_lib.so" Link="libcompression_lib.so" CopyToOutputDirectory="PreserveNewest" Condition="$([MSBuild]::IsOSPlatform('Linux'))" />
+    <None Include="..\..\build\compression_lib.dll" Link="compression_lib.dll" CopyToOutputDirectory="PreserveNewest" Condition="$([MSBuild]::IsOSPlatform('Windows'))" />
+    <None Include="..\..\build\libcompression_lib.dylib" Link="libcompression_lib.dylib" CopyToOutputDirectory="PreserveNewest" Condition="$([MSBuild]::IsOSPlatform('OSX'))" />
   </ItemGroup>
 
   <ItemGroup>
