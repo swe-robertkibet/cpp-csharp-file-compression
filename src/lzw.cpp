@@ -209,15 +209,15 @@ bool LZWCompressor::compressData(std::ifstream& input, BitWriter& writer) {
             
             if (nextCode < MAX_DICTIONARY_SIZE) {
                 dict[next] = nextCode++;
-                
-                if (nextCode > (1u << codeWidth) && codeWidth < MAX_CODE_WIDTH) {
-                    codeWidth++;
-                }
             } else {
                 writer.writeBits(CLEAR_CODE, codeWidth);
                 dict = buildCompressionDictionary();
                 nextCode = FIRST_CODE;
                 codeWidth = INITIAL_CODE_WIDTH;
+            }
+            
+            if (nextCode > (1u << codeWidth) && codeWidth < MAX_CODE_WIDTH) {
+                codeWidth++;
             }
             
             current = ch;
@@ -237,13 +237,17 @@ bool LZWCompressor::decompressData(BitReader& reader, std::ofstream& output) {
     uint16_t nextCode = FIRST_CODE;
     uint16_t codeWidth = INITIAL_CODE_WIDTH;
     
+    if (!reader.hasData()) {
+        return true;
+    }
+    
     uint16_t prevCode = reader.readBits(codeWidth);
     if (prevCode == STOP_CODE) {
         return true;
     }
     
     if (prevCode >= dict.size()) {
-        std::cerr << "Error: Invalid LZW code in compressed data.\n";
+        std::cerr << "Error: Invalid LZW code " << prevCode << " in compressed data.\n";
         return false;
     }
     
@@ -251,9 +255,13 @@ bool LZWCompressor::decompressData(BitReader& reader, std::ofstream& output) {
     output.write(prevString.c_str(), prevString.length());
     
     while (reader.hasData()) {
+        if (nextCode > (1u << codeWidth) && codeWidth < MAX_CODE_WIDTH) {
+            codeWidth++;
+        }
+        
         uint16_t code = reader.readBits(codeWidth);
         
-        if (code == STOP_CODE) {
+        if (code == STOP_CODE || code == 0) {
             break;
         }
         
@@ -262,6 +270,7 @@ bool LZWCompressor::decompressData(BitReader& reader, std::ofstream& output) {
             nextCode = FIRST_CODE;
             codeWidth = INITIAL_CODE_WIDTH;
             
+            if (!reader.hasData()) break;
             prevCode = reader.readBits(codeWidth);
             if (prevCode == STOP_CODE) {
                 break;
@@ -278,7 +287,7 @@ bool LZWCompressor::decompressData(BitReader& reader, std::ofstream& output) {
         } else if (code == nextCode) {
             currentString = prevString + prevString[0];
         } else {
-            std::cerr << "Error: Invalid LZW code in compressed data.\n";
+            std::cerr << "Error: Invalid LZW code " << code << " (dict size " << dict.size() << ", nextCode " << nextCode << ") in compressed data.\n";
             return false;
         }
         
@@ -287,10 +296,6 @@ bool LZWCompressor::decompressData(BitReader& reader, std::ofstream& output) {
         if (nextCode < MAX_DICTIONARY_SIZE) {
             dict.push_back(prevString + currentString[0]);
             nextCode++;
-            
-            if (nextCode > (1u << codeWidth) && codeWidth < MAX_CODE_WIDTH) {
-                codeWidth++;
-            }
         }
         
         prevString = currentString;
