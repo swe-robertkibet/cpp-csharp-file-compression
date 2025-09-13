@@ -65,7 +65,7 @@ uint32_t BitReader::readBits(int numBits) {
 }
 
 bool BitReader::hasData() const {
-    return !endOfFile_ || bitsInBuffer_ > 0;
+    return bitsInBuffer_ > 0 || (!endOfFile_ && !input_.eof());
 }
 
 void BitReader::fillBuffer() {
@@ -85,7 +85,7 @@ void BitReader::fillBuffer() {
         buffer_ |= static_cast<uint32_t>(bytes[i]) << (24 - i * 8);
     }
     
-    if (bytesRead < 4) {
+    if (bytesRead < 4 && input_.eof()) {
         endOfFile_ = true;
     }
 }
@@ -109,8 +109,12 @@ bool LZWCompressor::compress(const std::string& inputFile, const std::string& ou
         return false;
     }
     
-    BitWriter writer(output);
-    bool success = compressData(input, writer);
+    bool success = false;
+    
+    {
+        BitWriter writer(output);
+        success = compressData(input, writer);
+    }
     
     input.close();
     output.close();
@@ -143,8 +147,12 @@ bool LZWCompressor::decompress(const std::string& inputFile, const std::string& 
         return false;
     }
     
-    BitReader reader(input);
-    bool success = decompressData(reader, output);
+    bool success = false;
+    
+    {
+        BitReader reader(input);
+        success = decompressData(reader, output);
+    }
     
     input.close();
     output.close();
@@ -225,7 +233,9 @@ bool LZWCompressor::compressData(std::ifstream& input, BitWriter& writer) {
     }
     
     if (!current.empty()) {
-        writer.writeBits(dict[current], codeWidth);
+        if (dict.find(current) != dict.end()) {
+            writer.writeBits(dict[current], codeWidth);
+        }
     }
     
     writer.writeBits(STOP_CODE, codeWidth);
@@ -254,14 +264,18 @@ bool LZWCompressor::decompressData(BitReader& reader, std::ofstream& output) {
     std::string prevString = dict[prevCode];
     output.write(prevString.c_str(), prevString.length());
     
-    while (reader.hasData()) {
-        if (nextCode > (1u << codeWidth) && codeWidth < MAX_CODE_WIDTH) {
-            codeWidth++;
+    while (true) {
+        if (!reader.hasData()) {
+            break;
         }
         
         uint16_t code = reader.readBits(codeWidth);
         
-        if (code == STOP_CODE || code == 0) {
+        if (nextCode > (1u << codeWidth) && codeWidth < MAX_CODE_WIDTH) {
+            codeWidth++;
+        }
+        
+        if (code == STOP_CODE) {
             break;
         }
         
