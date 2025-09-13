@@ -1,13 +1,14 @@
 #include <iostream>
 #include <string>
 #include "rle.h"
+#include "huffman.h"
 #include "cxxopts.hpp"
 
 int main(int argc, char* argv[]) {
-    cxxopts::Options options("compress", "RLE Compression Tool");
+    cxxopts::Options options("compress", "Multi-Algorithm Compression Tool");
     
     options.add_options()
-        ("algo", "Compression algorithm (only 'rle' supported)", cxxopts::value<std::string>())
+        ("algo", "Compression algorithm: 'rle' or 'huffman'", cxxopts::value<std::string>())
         ("mode", "Operation mode: 'compress' or 'decompress'", cxxopts::value<std::string>())
         ("input", "Input file path", cxxopts::value<std::string>())
         ("output", "Output file path", cxxopts::value<std::string>())
