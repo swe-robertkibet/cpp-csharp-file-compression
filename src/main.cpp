@@ -22,6 +22,8 @@ int main(int argc, char* argv[]) {
             std::cout << "\nExample usage:" << std::endl;
             std::cout << "  ./compress --algo rle --mode compress --input sample.txt --output sample.rle" << std::endl;
             std::cout << "  ./compress --algo rle --mode decompress --input sample.rle --output restored.txt" << std::endl;
+            std::cout << "  ./compress --algo huffman --mode compress --input sample.txt --output sample.huf" << std::endl;
+            std::cout << "  ./compress --algo huffman --mode decompress --input sample.huf --output restored.txt" << std::endl;
             return 0;
         }
         
@@ -50,8 +52,8 @@ int main(int argc, char* argv[]) {
         std::string inputFile = result["input"].as<std::string>();
         std::string outputFile = result["output"].as<std::string>();
         
-        if (algorithm != "rle") {
-            std::cerr << "Error: Only 'rle' algorithm is supported" << std::endl;
+        if (algorithm != "rle" && algorithm != "huffman") {
+            std::cerr << "Error: Supported algorithms are 'rle' and 'huffman'" << std::endl;
             return 1;
         }
         
@@ -65,7 +67,7 @@ int main(int argc, char* argv[]) {
             return 1;
         }
         
-        std::cout << "RLE Compression Tool" << std::endl;
+        std::cout << "Multi-Algorithm Compression Tool" << std::endl;
         std::cout << "Algorithm: " << algorithm << std::endl;
         std::cout << "Mode: " << mode << std::endl;
         std::cout << "Input: " << inputFile << std::endl;
