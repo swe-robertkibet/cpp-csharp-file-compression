@@ -244,6 +244,7 @@ bool HuffmanCompressor::readCompressedFile(const std::string& inputFile, const s
     uint32_t treeSize;
     if (!input.read(reinterpret_cast<char*>(&treeSize), sizeof(treeSize))) {
         unsigned char singleChar;
+        input.clear();
         input.seekg(sizeof(uint32_t));
         input.read(reinterpret_cast<char*>(&singleChar), sizeof(singleChar));
         
