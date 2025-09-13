@@ -14,9 +14,9 @@ public class AlgorithmConverter : IValueConverter
     {
         if (value is CompressionAlgorithm algorithm && parameter is AlgorithmOption[] options)
         {
-            return Array.Find(options, o => o.Algorithm == algorithm);
+            return Array.Find(options, o => o.Algorithm == algorithm) ?? options[0];
         }
-        return null;
+        return new AlgorithmOption { Name = "Unknown", Algorithm = CompressionAlgorithm.LZW, Description = "Default algorithm" };
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
