@@ -6,6 +6,26 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+
+    <!-- Deployment properties (configured at publish time) -->
+    <PublishSingleFile Condition="'$(PublishSingleFile)' == ''">false</PublishSingleFile>
+    <SelfContained Condition="'$(SelfContained)' == ''">false</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract Condition="'$(PublishSingleFile)' == 'true'">true</IncludeNativeLibrariesForSelfExtract>
+    <PublishTrimmed>false</PublishTrimmed>
+    <AssemblyName>CompressionToolGUI</AssemblyName>
+    <Product>Multi-Algorithm Compression Tool GUI</Product>
+    <Company>Multi-Algorithm Compression Tool</Company>
+    <Description>Graphical user interface for the Multi-Algorithm Compression Tool supporting RLE, Huffman, and LZW compression algorithms.</Description>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+  <!-- Release configuration optimizations -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,9 +33,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\build\libcompression_lib.so" Link="libcompression_lib.so" CopyToOutputDirectory="PreserveNewest" Condition="$([MSBuild]::IsOSPlatform('Linux'))" />
-    <None Include="..\..\build\compression_lib.dll" Link="compression_lib.dll" CopyToOutputDirectory="PreserveNewest" Condition="$([MSBuild]::IsOSPlatform('Windows'))" />
-    <None Include="..\..\build\libcompression_lib.dylib" Link="libcompression_lib.dylib" CopyToOutputDirectory="PreserveNewest" Condition="$([MSBuild]::IsOSPlatform('OSX'))" />
+    <!-- Include C++ compression library based on runtime identifier -->
+    <None Include="..\..\build\libcompression_lib.so" Link="libcompression_lib.so" CopyToOutputDirectory="PreserveNewest" Condition="'$(RuntimeIdentifier)' == '' Or '$(RuntimeIdentifier)' == 'linux-x64'" />
+    <None Include="..\..\build\compression_lib.dll" Link="compression_lib.dll" CopyToOutputDirectory="PreserveNewest" Condition="'$(RuntimeIdentifier)' != '' And $(RuntimeIdentifier.StartsWith('win'))" />
+    <None Include="..\..\build\libcompression_lib.dylib" Link="libcompression_lib.dylib" CopyToOutputDirectory="PreserveNewest" Condition="'$(RuntimeIdentifier)' != '' And $(RuntimeIdentifier.StartsWith('osx'))" />
   </ItemGroup>
 
   <ItemGroup>

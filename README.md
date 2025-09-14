@@ -2,6 +2,25 @@
 
 A C++ implementation of three fundamental compression algorithms: **Run-Length Encoding (RLE)**, **Huffman Coding**, and **LZW (Lempel-Ziv-Welch)**. This tool demonstrates the strengths and weaknesses of each algorithm across different data types.
 
+## 🚀 Windows Users - Quick Start
+
+**Download Ready-to-Use Version:**
+- **Installer**: Download `MultiAlgorithmCompressionTool-1.0.0-Setup.exe`
+- **Portable**: Download ZIP with standalone executables
+- **GUI + Console**: Both graphical and command-line interfaces included
+
+**See [QUICK_START_WINDOWS.md](QUICK_START_WINDOWS.md) for installation and usage instructions.**
+
+## 🛠️ Available Interfaces
+
+1. **Command-Line Interface (CLI)** - `compress.exe`
+   - Fast, scriptable, perfect for batch operations
+   - Cross-platform C++ implementation
+
+2. **Graphical User Interface (GUI)** - `CompressionToolGUI.exe`
+   - User-friendly Avalonia-based desktop application
+   - Drag-and-drop file selection, visual progress indicators
+
 suggested pseudocode for RLE compression
 
 ```cpp
@@ -217,6 +236,7 @@ diff ../tests/sample.txt restored.txt  # Should show no differences
 
 ## Build Requirements
 
+### Linux/macOS
 - **C++17** or later
 - **CMake 3.10+**
 - **GCC/Clang** with standard library support
@@ -226,6 +246,24 @@ mkdir build && cd build
 cmake ..
 make
 ```
+
+### Windows
+- **Visual Studio 2022** or **Build Tools**
+- **.NET 8 SDK** (for GUI application)
+- **CMake 3.12+**
+- **NSIS** (optional, for installer creation)
+
+```cmd
+# Automated build (recommended)
+.\build-windows.ps1
+
+# Or manual build
+mkdir build && cd build
+cmake .. -G "Visual Studio 17 2022" -A x64
+cmake --build . --config Release
+```
+
+**📋 For detailed Windows deployment instructions, see [WINDOWS_DEPLOYMENT.md](WINDOWS_DEPLOYMENT.md)**
 
 ## 📈 Benchmark Results
 
