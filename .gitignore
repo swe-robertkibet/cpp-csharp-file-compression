@@ -1,21 +1,51 @@
-build
-tests
+# Build directories
+build/
+build-*/
+dist/
 
-*.txt
+# Compressed test files and output (but keep source test files)
+test_*.*
+*_test.*
+*_restored.*
+*_decompressed.*
+*_fixed.*
 *.huf
 *.lzw
 *.rle
 
+# Executables and libraries
+*.exe
+*.dll
+*.so
+*.dylib
+*.lib
+*.a
+
+# C/C++ Build artifacts
+*.o
+*.obj
+*.out
+*.app
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+Makefile
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
 # C# / .NET Build Outputs
 CSharpUI/**/bin/
 CSharpUI/**/obj/
-*.dll
 *.pdb
-*.exe
 *.cache
 *.user
 *.suo
 *.sln.docstates
+*.AssemblyInfo.cs
+*.csproj.AssemblyReference.cache
 
 # NuGet
 packages/
@@ -29,6 +59,9 @@ artifacts/
 .vscode/
 *.userprefs
 .DS_Store
+*.swp
+*.swo
+*~
 
 # .NET Core / ASP.NET
 project.json
@@ -36,3 +69,54 @@ project.fragment.lock.json
 artifacts/
 *.log
 *.tmp
+
+# Distribution files
+*.zip
+*.tar.gz
+*.tar.bz2
+*.7z
+
+# Screenshots and images (development/debugging)
+image*.png
+screenshot*.png
+debug*.png
+
+# Windows deployment scripts (keep source versions)
+# Uncomment if you don't want to track these:
+# build-windows.bat
+# build-windows.ps1
+
+# NSIS installer artifacts
+*.nsi.tmp
+
+# Analysis files
+analysis_results.txt
+
+# Claude AI files
+.claude/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+.#*
+\#*#
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/

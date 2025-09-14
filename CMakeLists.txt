@@ -41,16 +41,58 @@ option(BUILD_TESTS "Build test programs" OFF)
 
 if(BUILD_TESTS)
     enable_testing()
-    
+
     set(TEST_SOURCES
         tests/test_rle.cpp
         src/rle.cpp
         src/huffman.cpp
         src/lzw.cpp
     )
-    
+
     add_executable(test_rle ${TEST_SOURCES})
     target_include_directories(test_rle PRIVATE include external)
-    
+
     add_test(NAME RLETests COMMAND test_rle)
 endif()
+
+# Installation configuration
+install(TARGETS compress DESTINATION bin)
+install(TARGETS compression_lib DESTINATION lib)
+install(DIRECTORY include/ DESTINATION include)
+
+# Package configuration for Windows installer
+set(CPACK_PACKAGE_NAME "MultiAlgorithmCompression")
+set(CPACK_PACKAGE_VENDOR "Multi-Algorithm Compression Tool")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A C++ implementation of RLE, Huffman, and LZW compression algorithms")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_VERSION_MAJOR "1")
+set(CPACK_PACKAGE_VERSION_MINOR "0")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "MultiAlgorithmCompression")
+
+# Windows-specific packaging
+if(WIN32)
+    set(CPACK_GENERATOR "NSIS;ZIP")
+    set(CPACK_NSIS_DISPLAY_NAME "Multi-Algorithm Compression Tool")
+    set(CPACK_NSIS_PACKAGE_NAME "Multi-Algorithm Compression Tool")
+    set(CPACK_NSIS_CONTACT "developer@example.com")
+    set(CPACK_NSIS_MODIFY_PATH ON)
+    set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+
+    # Add desktop shortcut
+    set(CPACK_NSIS_MENU_LINKS
+        "bin/compress.exe" "Multi-Algorithm Compression Tool (Console)"
+    )
+
+    # Set the icon for the installer
+    # set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/assets/icon.ico")
+    # set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/assets/icon.ico")
+else()
+    set(CPACK_GENERATOR "TGZ")
+endif()
+
+# Include system libraries
+include(InstallRequiredSystemLibraries)
+
+# Include CPack
+include(CPack)

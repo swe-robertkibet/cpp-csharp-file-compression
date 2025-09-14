@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -9,6 +11,9 @@ namespace CompressionTool.Services;
 public class CompressionService
 {
     private const string LibraryName = "compression_lib";
+    private static readonly List<string> LoadAttempts = new();
+    private static bool LibraryLoadSuccessful = false;
+    private static string? LoadedLibraryPath = null;
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
     private static extern int compress_file(
@@ -50,19 +55,44 @@ public class CompressionService
     {
         if (libraryName == LibraryName)
         {
+            Debug.WriteLine($"[CompressionService] Attempting to load library: {libraryName}");
+
             // Try to load the library from various paths
             string[] possiblePaths = GetPossibleLibraryPaths();
 
             foreach (string path in possiblePaths)
             {
+                LoadAttempts.Add($"Trying: {path}");
+                Debug.WriteLine($"[CompressionService] Trying to load: {path}");
+
                 if (File.Exists(path))
                 {
+                    LoadAttempts.Add($"File exists: {path}");
+                    Debug.WriteLine($"[CompressionService] File exists: {path}");
+
                     if (NativeLibrary.TryLoad(path, out IntPtr handle))
                     {
+                        LoadAttempts.Add($"SUCCESS: Loaded {path}");
+                        Debug.WriteLine($"[CompressionService] Successfully loaded: {path}");
+                        LibraryLoadSuccessful = true;
+                        LoadedLibraryPath = path;
                         return handle;
                     }
+                    else
+                    {
+                        LoadAttempts.Add($"FAILED: Could not load {path}");
+                        Debug.WriteLine($"[CompressionService] Failed to load: {path}");
+                    }
+                }
+                else
+                {
+                    LoadAttempts.Add($"File not found: {path}");
+                    Debug.WriteLine($"[CompressionService] File not found: {path}");
                 }
             }
+
+            LoadAttempts.Add("FINAL FAILURE: Could not load library from any path");
+            Debug.WriteLine("[CompressionService] Failed to load library from any path");
         }
 
         return IntPtr.Zero;
@@ -118,6 +148,16 @@ public class CompressionService
     {
         try
         {
+            // Check if library was loaded successfully
+            if (!LibraryLoadSuccessful)
+            {
+                return new CompressionResult
+                {
+                    Success = false,
+                    ErrorMessage = GetLibraryLoadDiagnostics()
+                };
+            }
+
             var metrics = new CompressionMetrics();
             int result = compress_file(algorithm, inputFile, outputFile, ref metrics);
 
@@ -134,12 +174,20 @@ public class CompressionService
                 DecompressionSpeedMbps = 0
             };
         }
+        catch (DllNotFoundException dllEx)
+        {
+            return new CompressionResult
+            {
+                Success = false,
+                ErrorMessage = $"Compression library not found: {dllEx.Message}\n\nDiagnostics:\n{GetLibraryLoadDiagnostics()}"
+            };
+        }
         catch (Exception ex)
         {
             return new CompressionResult
             {
                 Success = false,
-                ErrorMessage = $"Error calling compression library: {ex.Message}"
+                ErrorMessage = $"Error calling compression library: {ex.Message}\n\nDiagnostics:\n{GetLibraryLoadDiagnostics()}"
             };
         }
     }
@@ -148,6 +196,16 @@ public class CompressionService
     {
         try
         {
+            // Check if library was loaded successfully
+            if (!LibraryLoadSuccessful)
+            {
+                return new CompressionResult
+                {
+                    Success = false,
+                    ErrorMessage = GetLibraryLoadDiagnostics()
+                };
+            }
+
             var metrics = new CompressionMetrics();
             int result = decompress_file(algorithm, inputFile, outputFile, ref metrics);
 
@@ -164,12 +222,20 @@ public class CompressionService
                 DecompressionSpeedMbps = metrics.DecompressionSpeedMbps
             };
         }
+        catch (DllNotFoundException dllEx)
+        {
+            return new CompressionResult
+            {
+                Success = false,
+                ErrorMessage = $"Decompression library not found: {dllEx.Message}\n\nDiagnostics:\n{GetLibraryLoadDiagnostics()}"
+            };
+        }
         catch (Exception ex)
         {
             return new CompressionResult
             {
                 Success = false,
-                ErrorMessage = $"Error calling decompression library: {ex.Message}"
+                ErrorMessage = $"Error calling decompression library: {ex.Message}\n\nDiagnostics:\n{GetLibraryLoadDiagnostics()}"
             };
         }
     }
@@ -211,4 +277,46 @@ public class CompressionService
             return "Unable to retrieve error message";
         }
     }
+
+    public static string GetLibraryLoadDiagnostics()
+    {
+        var diagnostics = new List<string>
+        {
+            $"Library Load Status: {(LibraryLoadSuccessful ? "SUCCESS" : "FAILED")}",
+            $"Loaded Library Path: {LoadedLibraryPath ?? "None"}",
+            $"Current Directory: {Environment.CurrentDirectory}",
+            $"Base Directory: {AppDomain.CurrentDomain.BaseDirectory}",
+            $"OS Platform: {RuntimeInformation.OSDescription}",
+            $"Runtime Identifier: {RuntimeInformation.RuntimeIdentifier}",
+            $"Is Windows: {RuntimeInformation.IsOSPlatform(OSPlatform.Windows)}",
+            $"Is Linux: {RuntimeInformation.IsOSPlatform(OSPlatform.Linux)}",
+            $"Is macOS: {RuntimeInformation.IsOSPlatform(OSPlatform.OSX)}",
+            "",
+            "Load Attempts:"
+        };
+
+        if (LoadAttempts.Count == 0)
+        {
+            diagnostics.Add("No load attempts recorded - library resolver may not have been called");
+        }
+        else
+        {
+            foreach (string attempt in LoadAttempts)
+            {
+                diagnostics.Add($"  {attempt}");
+            }
+        }
+
+        diagnostics.Add("");
+        diagnostics.Add("Possible Library Paths:");
+        foreach (string path in GetPossibleLibraryPaths())
+        {
+            bool exists = File.Exists(path);
+            diagnostics.Add($"  {(exists ? "✓" : "✗")} {path}");
+        }
+
+        return string.Join("\n", diagnostics);
+    }
+
+    public static bool IsLibraryLoaded => LibraryLoadSuccessful;
 }
