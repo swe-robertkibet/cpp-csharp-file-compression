@@ -244,12 +244,37 @@ public class CompressionService
     {
         try
         {
+            // Check if library was loaded successfully before calling native function
+            if (!LibraryLoadSuccessful)
+            {
+                // Fallback to .NET file size calculation
+                if (File.Exists(filename))
+                {
+                    var fileInfo = new FileInfo(filename);
+                    return (ulong)fileInfo.Length;
+                }
+                return 0;
+            }
+
             ulong size = 0;
             get_file_size(filename, ref size);
             return size;
         }
         catch
         {
+            // Fallback to .NET file size calculation on error
+            try
+            {
+                if (File.Exists(filename))
+                {
+                    var fileInfo = new FileInfo(filename);
+                    return (ulong)fileInfo.Length;
+                }
+            }
+            catch
+            {
+                // Ignore fallback errors
+            }
             return 0;
         }
     }
@@ -258,11 +283,31 @@ public class CompressionService
     {
         try
         {
+            // Check if library was loaded successfully before calling native function
+            if (!LibraryLoadSuccessful)
+            {
+                // Return fallback algorithm names when library isn't loaded
+                return algorithm switch
+                {
+                    CompressionAlgorithm.RLE => "Run-Length Encoding",
+                    CompressionAlgorithm.Huffman => "Huffman Coding",
+                    CompressionAlgorithm.LZW => "LZW",
+                    _ => "Unknown"
+                };
+            }
+
             return get_algorithm_name(algorithm);
         }
         catch
         {
-            return "Unknown";
+            // Fallback to built-in algorithm names if native call fails
+            return algorithm switch
+            {
+                CompressionAlgorithm.RLE => "Run-Length Encoding",
+                CompressionAlgorithm.Huffman => "Huffman Coding",
+                CompressionAlgorithm.LZW => "LZW",
+                _ => "Unknown"
+            };
         }
     }
 
@@ -270,6 +315,12 @@ public class CompressionService
     {
         try
         {
+            // Check if library was loaded successfully before calling native function
+            if (!LibraryLoadSuccessful)
+            {
+                return "Compression library not loaded";
+            }
+
             return get_last_error();
         }
         catch
