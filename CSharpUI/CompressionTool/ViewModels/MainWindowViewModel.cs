@@ -13,7 +13,7 @@ namespace CompressionTool.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private readonly CompressionService _compressionService;
+    private readonly CompressionServiceManual _compressionService;
     private readonly IFileDialogService _fileDialogService;
 
     [ObservableProperty]
@@ -82,10 +82,11 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel(IFileDialogService fileDialogService)
     {
-        _compressionService = new CompressionService();
+        _compressionService = new CompressionServiceManual();
         _fileDialogService = fileDialogService;
         _selectedAlgorithmOption = AvailableAlgorithms[0]; // Default to LZW
         LogMessages.Add($"Application started - {DateTime.Now:HH:mm:ss}");
+        LogMessages.Add($"Library Load Status: {(CompressionServiceManual.IsLibraryLoaded ? "SUCCESS" : "FAILED")}");
     }
 
     [RelayCommand]
@@ -230,7 +231,15 @@ public partial class MainWindowViewModel : ViewModelBase
     partial void OnSelectedAlgorithmChanged(CompressionAlgorithm value)
     {
         UpdateSuggestedOutputPath();
-        LogMessages.Add($"Algorithm changed to {_compressionService.GetAlgorithmName(value)} - {DateTime.Now:HH:mm:ss}");
+        // Use fallback algorithm names to avoid UI thread blocking from native calls
+        string algorithmName = value switch
+        {
+            CompressionAlgorithm.RLE => "Run-Length Encoding",
+            CompressionAlgorithm.Huffman => "Huffman Coding",
+            CompressionAlgorithm.LZW => "LZW",
+            _ => "Unknown"
+        };
+        LogMessages.Add($"Algorithm changed to {algorithmName} - {DateTime.Now:HH:mm:ss}");
     }
 
     partial void OnSelectedAlgorithmOptionChanged(AlgorithmOption value)
