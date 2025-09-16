@@ -27,13 +27,36 @@ add_library(compression_lib SHARED ${LIB_SOURCES})
 # Create executable
 add_executable(compress ${EXE_SOURCES} ${LIB_SOURCES})
 
-# Enable compiler warnings
-if(MSVC)
-    target_compile_options(compress PRIVATE /W4)
-    target_compile_options(compression_lib PRIVATE /W4)
+# Platform-specific settings
+if(WIN32)
+    # Windows-specific settings
+    if(MSVC)
+        # Use MSVC settings for better Windows compatibility
+        target_compile_options(compress PRIVATE /W4 /EHsc)
+        target_compile_options(compression_lib PRIVATE /W4 /EHsc)
+
+        # Ensure we're linking against the correct runtime
+        set_property(TARGET compress PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+        set_property(TARGET compression_lib PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+
+        # Export all symbols for DLL
+        set_target_properties(compression_lib PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+    else()
+        # MinGW settings - ensure static linking of runtime for portability
+        target_compile_options(compress PRIVATE -Wall -Wextra -Wpedantic)
+        target_compile_options(compression_lib PRIVATE -Wall -Wextra -Wpedantic)
+
+        # Static link MinGW runtime to avoid dependencies
+        target_link_options(compress PRIVATE -static-libgcc -static-libstdc++)
+        target_link_options(compression_lib PRIVATE -static-libgcc -static-libstdc++ -Wl,--enable-stdcall-fixup)
+    endif()
 else()
+    # Unix-like systems
     target_compile_options(compress PRIVATE -Wall -Wextra -Wpedantic)
     target_compile_options(compression_lib PRIVATE -Wall -Wextra -Wpedantic)
+
+    # Enable position independent code for shared libraries
+    set_target_properties(compression_lib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 
 # Optional: Create tests (if you add test files later)

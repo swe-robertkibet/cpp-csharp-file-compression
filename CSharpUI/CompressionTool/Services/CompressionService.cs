@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using CompressionTool.Models;
@@ -70,18 +71,37 @@ public class CompressionService
                     LoadAttempts.Add($"File exists: {path}");
                     Debug.WriteLine($"[CompressionService] File exists: {path}");
 
-                    if (NativeLibrary.TryLoad(path, out IntPtr handle))
+                    try
                     {
-                        LoadAttempts.Add($"SUCCESS: Loaded {path}");
-                        Debug.WriteLine($"[CompressionService] Successfully loaded: {path}");
-                        LibraryLoadSuccessful = true;
-                        LoadedLibraryPath = path;
-                        return handle;
+                        if (NativeLibrary.TryLoad(path, out IntPtr handle))
+                        {
+                            LoadAttempts.Add($"SUCCESS: Loaded {path}");
+                            Debug.WriteLine($"[CompressionService] Successfully loaded: {path}");
+                            LibraryLoadSuccessful = true;
+                            LoadedLibraryPath = path;
+                            return handle;
+                        }
+                        else
+                        {
+                            // Try to get more detailed error information
+                            try
+                            {
+                                // This will throw a more specific exception
+                                IntPtr testHandle = NativeLibrary.Load(path);
+                                NativeLibrary.Free(testHandle);
+                                LoadAttempts.Add($"STRANGE: TryLoad failed but Load succeeded for {path}");
+                            }
+                            catch (Exception ex)
+                            {
+                                LoadAttempts.Add($"FAILED: Could not load {path} - {ex.Message}");
+                                Debug.WriteLine($"[CompressionService] Failed to load: {path} - {ex.Message}");
+                            }
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        LoadAttempts.Add($"FAILED: Could not load {path}");
-                        Debug.WriteLine($"[CompressionService] Failed to load: {path}");
+                        LoadAttempts.Add($"EXCEPTION: Error loading {path} - {ex.Message}");
+                        Debug.WriteLine($"[CompressionService] Exception loading: {path} - {ex.Message}");
                     }
                 }
                 else
@@ -103,32 +123,79 @@ public class CompressionService
         string baseDir = AppDomain.CurrentDomain.BaseDirectory;
         string projectRoot = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "..", "build"));
 
+        // Get more potential project root paths
+        List<string> possibleProjectRoots = new()
+        {
+            projectRoot,
+            Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "..")),
+            Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "..", "build-windows")),
+            Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "..", "dist", "MultiAlgorithmCompressionTool-StaticLinked-v3.0")),
+            Environment.CurrentDirectory,
+            Path.Combine(Environment.CurrentDirectory, "build"),
+            Path.Combine(Environment.CurrentDirectory, "build-windows")
+        };
+
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            return new[]
+            List<string> paths = new()
             {
-                Path.Combine(baseDir, "compression_lib.dll"),
-                Path.Combine(projectRoot, "compression_lib.dll"),
-                Path.Combine(projectRoot, "Debug", "compression_lib.dll"),
-                Path.Combine(projectRoot, "Release", "compression_lib.dll")
+                Path.Combine(baseDir, "compression_lib.dll")
             };
+
+            // Add all possible project root combinations
+            foreach (string root in possibleProjectRoots)
+            {
+                paths.AddRange(new[]
+                {
+                    Path.Combine(root, "compression_lib.dll"),
+                    Path.Combine(root, "Debug", "compression_lib.dll"),
+                    Path.Combine(root, "Release", "compression_lib.dll"),
+                    Path.Combine(root, "build", "compression_lib.dll"),
+                    Path.Combine(root, "build", "Debug", "compression_lib.dll"),
+                    Path.Combine(root, "build", "Release", "compression_lib.dll")
+                });
+            }
+
+            return paths.Distinct().ToArray();
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            return new[]
+            List<string> paths = new()
             {
-                Path.Combine(baseDir, "libcompression_lib.so"),
-                Path.Combine(projectRoot, "libcompression_lib.so"),
-                "/home/robert/cpp-csharp-file-compression/build/libcompression_lib.so"
+                Path.Combine(baseDir, "libcompression_lib.so")
             };
+
+            foreach (string root in possibleProjectRoots)
+            {
+                paths.AddRange(new[]
+                {
+                    Path.Combine(root, "libcompression_lib.so"),
+                    Path.Combine(root, "build", "libcompression_lib.so")
+                });
+            }
+
+            // Add hardcoded fallback path
+            paths.Add("/home/robert/cpp-csharp-file-compression/build/libcompression_lib.so");
+
+            return paths.Distinct().ToArray();
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            return new[]
+            List<string> paths = new()
             {
-                Path.Combine(baseDir, "libcompression_lib.dylib"),
-                Path.Combine(projectRoot, "libcompression_lib.dylib")
+                Path.Combine(baseDir, "libcompression_lib.dylib")
             };
+
+            foreach (string root in possibleProjectRoots)
+            {
+                paths.AddRange(new[]
+                {
+                    Path.Combine(root, "libcompression_lib.dylib"),
+                    Path.Combine(root, "build", "libcompression_lib.dylib")
+                });
+            }
+
+            return paths.Distinct().ToArray();
         }
 
         return Array.Empty<string>();
