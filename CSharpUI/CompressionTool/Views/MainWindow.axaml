@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:CompressionTool.ViewModels" xmlns:views="using:CompressionTool.Views" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700" x:Class="CompressionTool.Views.MainWindow" x:DataType="vm:MainWindowViewModel" Icon="/Assets/avalonia-logo.ico" Title="File Compression Tool" MinWidth="800" MinHeight="600">
 
 
-  <Grid Background="#F8F9FA" Margin="20">
+  <Grid Background="#F8FAFC" Margin="20">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
@@ -17,13 +17,13 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Column="0" Orientation="Vertical">
-          <TextBlock Text="File Compression Tool" FontSize="28" FontWeight="Bold" Foreground="#2C3E50" />
-          <TextBlock Text="Compress and decompress files using RLE, Huffman, and LZW algorithms" FontSize="14" Foreground="#7F8C8D" Margin="0,4,0,0" />
+          <TextBlock Text="File Compression Tool" FontSize="28" FontWeight="Bold" Foreground="#1E293B" />
+          <TextBlock Text="Compress and decompress files using RLE, Huffman, and LZW algorithms" FontSize="14" Foreground="#64748B" Margin="0,4,0,0" />
         </StackPanel>
 
         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
-          <Border Background="#E3F2FD" CornerRadius="8" Padding="12,8">
-            <TextBlock Text="{Binding StatusMessage}" FontWeight="Medium" Foreground="#1976D2" />
+          <Border Background="#DBEAFE" CornerRadius="8" Padding="12,8">
+            <TextBlock Text="{Binding StatusMessage}" FontWeight="Medium" Foreground="#2563EB" />
           </Border>
         </StackPanel>
       </Grid>
@@ -44,58 +44,81 @@
 
             <!-- Operation Mode -->
             <StackPanel>
-              <TextBlock Text="Operation Mode" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50" Margin="0,0,0,12" />
+              <TextBlock Text="Operation Mode" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12" />
               <StackPanel Orientation="Horizontal" Spacing="16">
-                <RadioButton Content="Compress" IsChecked="{Binding IsCompression}" FontSize="14" Foreground="#34495E" />
-                <RadioButton Content="Decompress" IsChecked="{Binding IsDecompression}" FontSize="14" Foreground="#34495E" />
+                <RadioButton Content="Compress" IsChecked="{Binding IsCompression}" FontSize="14" Foreground="#374151" />
+                <RadioButton Content="Decompress" IsChecked="{Binding IsDecompression}" FontSize="14" Foreground="#374151" />
               </StackPanel>
             </StackPanel>
 
             <!-- Algorithm Selection -->
             <StackPanel>
-              <TextBlock Text="Compression Algorithm" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50" Margin="0,0,0,12" />
-              <ComboBox ItemsSource="{Binding AvailableAlgorithms}" SelectedItem="{Binding SelectedAlgorithmOption}" MinWidth="300" FontSize="14">
+              <TextBlock Text="Compression Algorithm" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12" />
+              <ComboBox ItemsSource="{Binding AvailableAlgorithms}" SelectedItem="{Binding SelectedAlgorithmOption}" MinWidth="300" FontSize="14"
+                        Background="#FFFFFF" Foreground="#1E293B" BorderBrush="#D1D5DB" BorderThickness="1"
+                        CornerRadius="6" Padding="12,8">
                 <ComboBox.ItemTemplate>
                   <DataTemplate>
                     <StackPanel>
-                      <TextBlock Text="{Binding Name}" FontWeight="Medium" />
-                      <TextBlock Text="{Binding Description}" FontSize="12" Foreground="#7F8C8D" />
+                      <TextBlock Text="{Binding Name}" FontWeight="Medium" Foreground="#1E293B" />
+                      <TextBlock Text="{Binding Description}" FontSize="12" Foreground="#64748B" />
                     </StackPanel>
                   </DataTemplate>
                 </ComboBox.ItemTemplate>
+                <ComboBox.Styles>
+                  <Style Selector="ComboBoxItem">
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="Foreground" Value="#1E293B" />
+                    <Setter Property="Padding" Value="12,8" />
+                  </Style>
+                  <Style Selector="ComboBoxItem:pointerover">
+                    <Setter Property="Background" Value="#F1F5F9" />
+                    <Setter Property="Foreground" Value="#1E293B" />
+                  </Style>
+                  <Style Selector="ComboBoxItem:selected">
+                    <Setter Property="Background" Value="#DBEAFE" />
+                    <Setter Property="Foreground" Value="#2563EB" />
+                  </Style>
+                  <Style Selector="ComboBoxItem:selected:pointerover">
+                    <Setter Property="Background" Value="#BFDBFE" />
+                    <Setter Property="Foreground" Value="#2563EB" />
+                  </Style>
+                </ComboBox.Styles>
               </ComboBox>
             </StackPanel>
 
             <!-- File Selection -->
             <StackPanel>
-              <TextBlock Text="Input File" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50" Margin="0,0,0,12" />
+              <TextBlock Text="Input File" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12" />
               <Grid>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*" />
                   <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Text="{Binding InputFilePath}" Watermark="Select input file..." FontSize="14" Padding="12" CornerRadius="6" Margin="0,0,8,0" />
-                <Button Grid.Column="1" Content="Browse" Command="{Binding BrowseInputFileCommand}" Background="#3498DB" Foreground="White" Padding="16,8" CornerRadius="6" FontWeight="Medium" />
+                <TextBox Grid.Column="0" Text="{Binding InputFilePath}" Watermark="Select input file..." FontSize="14" Padding="12" CornerRadius="6" Margin="0,0,8,0"
+                         Background="#FFFFFF" Foreground="#1E293B" BorderBrush="#D1D5DB" />
+                <Button Grid.Column="1" Content="Browse" Command="{Binding BrowseInputFileCommand}" Classes="primary" />
               </Grid>
             </StackPanel>
 
             <StackPanel>
-              <TextBlock Text="Output File" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50" Margin="0,0,0,12" />
+              <TextBlock Text="Output File" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12" />
               <Grid>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*" />
                   <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Text="{Binding OutputFilePath}" Watermark="Output file path..." FontSize="14" Padding="12" CornerRadius="6" Margin="0,0,8,0" />
-                <Button Grid.Column="1" Content="Browse" Command="{Binding BrowseOutputFileCommand}" Background="#95A5A6" Foreground="White" Padding="16,8" CornerRadius="6" FontWeight="Medium" />
+                <TextBox Grid.Column="0" Text="{Binding OutputFilePath}" Watermark="Output file path..." FontSize="14" Padding="12" CornerRadius="6" Margin="0,0,8,0"
+                         Background="#FFFFFF" Foreground="#1E293B" BorderBrush="#D1D5DB" />
+                <Button Grid.Column="1" Content="Browse" Command="{Binding BrowseOutputFileCommand}" Classes="secondary" />
               </Grid>
             </StackPanel>
 
             <!-- Execute Button -->
-            <Button Content="{Binding IsCompression, Converter={x:Static views:OperationTextConverter.Instance}}" Command="{Binding ExecuteOperationCommand}" IsEnabled="{Binding !IsOperationInProgress}" Background="#27AE60" Foreground="White" FontSize="16" FontWeight="Bold" Padding="24,16" CornerRadius="8" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            <Button Content="{Binding IsCompression, Converter={x:Static views:OperationTextConverter.Instance}}" Command="{Binding ExecuteOperationCommand}" IsEnabled="{Binding !IsOperationInProgress}" Classes="success" FontSize="16" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
 
             <!-- Progress Indicator -->
-            <ProgressBar IsVisible="{Binding IsOperationInProgress}" IsIndeterminate="True" Height="4" Foreground="#3498DB" />
+            <ProgressBar IsVisible="{Binding IsOperationInProgress}" IsIndeterminate="True" Height="4" Foreground="#2563EB" />
 
           </StackPanel>
         </ScrollViewer>
@@ -107,7 +130,7 @@
         <!-- Metrics Card -->
         <Border Background="#FFFFFF" CornerRadius="12" BoxShadow="0 2 8 0 #20000000" Padding="20" IsVisible="{Binding LastResult, Converter={x:Static ObjectConverters.IsNotNull}}">
           <StackPanel Spacing="16">
-            <TextBlock Text="📊 Metrics" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50" />
+            <TextBlock Text="📊 Metrics" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" />
 
             <StackPanel Spacing="12" IsVisible="{Binding LastResult.Success}">
               <!-- File Sizes -->
@@ -116,8 +139,8 @@
                   <ColumnDefinition Width="Auto" />
                   <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Original:" FontSize="12" Foreground="#7F8C8D" Width="80" />
-                <TextBlock Grid.Column="1" Text="{Binding LastResult.OriginalSizeFormatted}" FontSize="12" FontWeight="Medium" />
+                <TextBlock Grid.Column="0" Text="Original:" FontSize="12" Foreground="#64748B" Width="80" />
+                <TextBlock Grid.Column="1" Text="{Binding LastResult.OriginalSizeFormatted}" FontSize="12" FontWeight="Medium" Foreground="#1E293B" />
               </Grid>
 
               <Grid>
@@ -125,19 +148,19 @@
                   <ColumnDefinition Width="Auto" />
                   <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Compressed:" FontSize="12" Foreground="#7F8C8D" Width="80" />
-                <TextBlock Grid.Column="1" Text="{Binding LastResult.CompressedSizeFormatted}" FontSize="12" FontWeight="Medium" />
+                <TextBlock Grid.Column="0" Text="Compressed:" FontSize="12" Foreground="#64748B" Width="80" />
+                <TextBlock Grid.Column="1" Text="{Binding LastResult.CompressedSizeFormatted}" FontSize="12" FontWeight="Medium" Foreground="#1E293B" />
               </Grid>
 
               <!-- Compression Ratio -->
-              <Border Background="#E8F5E8" CornerRadius="6" Padding="8">
+              <Border Background="#DCFCE7" CornerRadius="6" Padding="8">
                 <Grid>
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                   </Grid.ColumnDefinitions>
-                  <TextBlock Grid.Column="0" Text="Ratio:" FontSize="12" Foreground="#27AE60" Width="80" />
-                  <TextBlock Grid.Column="1" Text="{Binding LastResult.CompressionRatioFormatted}" FontSize="14" FontWeight="Bold" Foreground="#27AE60" />
+                  <TextBlock Grid.Column="0" Text="Ratio:" FontSize="12" Foreground="#16A34A" Width="80" />
+                  <TextBlock Grid.Column="1" Text="{Binding LastResult.CompressionRatioFormatted}" FontSize="14" FontWeight="Bold" Foreground="#16A34A" />
                 </Grid>
               </Border>
 
@@ -147,8 +170,8 @@
                   <ColumnDefinition Width="Auto" />
                   <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Time:" FontSize="12" Foreground="#7F8C8D" Width="80" />
-                <TextBlock Grid.Column="1" Text="{Binding LastResult.CompressionTimeFormatted}" FontSize="12" FontWeight="Medium" />
+                <TextBlock Grid.Column="0" Text="Time:" FontSize="12" Foreground="#64748B" Width="80" />
+                <TextBlock Grid.Column="1" Text="{Binding LastResult.CompressionTimeFormatted}" FontSize="12" FontWeight="Medium" Foreground="#1E293B" />
               </Grid>
 
               <Grid IsVisible="{Binding IsDecompression}">
@@ -156,8 +179,8 @@
                   <ColumnDefinition Width="Auto" />
                   <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Time:" FontSize="12" Foreground="#7F8C8D" Width="80" />
-                <TextBlock Grid.Column="1" Text="{Binding LastResult.DecompressionTimeFormatted}" FontSize="12" FontWeight="Medium" />
+                <TextBlock Grid.Column="0" Text="Time:" FontSize="12" Foreground="#64748B" Width="80" />
+                <TextBlock Grid.Column="1" Text="{Binding LastResult.DecompressionTimeFormatted}" FontSize="12" FontWeight="Medium" Foreground="#1E293B" />
               </Grid>
 
               <!-- Speed -->
@@ -166,8 +189,8 @@
                   <ColumnDefinition Width="Auto" />
                   <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Speed:" FontSize="12" Foreground="#7F8C8D" Width="80" />
-                <TextBlock Grid.Column="1" Text="{Binding LastResult.CompressionSpeedFormatted}" FontSize="12" FontWeight="Medium" />
+                <TextBlock Grid.Column="0" Text="Speed:" FontSize="12" Foreground="#64748B" Width="80" />
+                <TextBlock Grid.Column="1" Text="{Binding LastResult.CompressionSpeedFormatted}" FontSize="12" FontWeight="Medium" Foreground="#1E293B" />
               </Grid>
 
               <Grid IsVisible="{Binding IsDecompression}">
@@ -175,14 +198,14 @@
                   <ColumnDefinition Width="Auto" />
                   <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Speed:" FontSize="12" Foreground="#7F8C8D" Width="80" />
-                <TextBlock Grid.Column="1" Text="{Binding LastResult.DecompressionSpeedFormatted}" FontSize="12" FontWeight="Medium" />
+                <TextBlock Grid.Column="0" Text="Speed:" FontSize="12" Foreground="#64748B" Width="80" />
+                <TextBlock Grid.Column="1" Text="{Binding LastResult.DecompressionSpeedFormatted}" FontSize="12" FontWeight="Medium" Foreground="#1E293B" />
               </Grid>
             </StackPanel>
 
             <!-- Error Message -->
-            <Border Background="#FFEBEE" CornerRadius="6" Padding="8" IsVisible="{Binding LastResult.Success, Converter={x:Static BoolConverters.Not}}">
-              <TextBlock Text="{Binding LastResult.ErrorMessage}" FontSize="12" Foreground="#C62828" TextWrapping="Wrap" />
+            <Border Background="#FEF2F2" CornerRadius="6" Padding="8" IsVisible="{Binding LastResult.Success, Converter={x:Static BoolConverters.Not}}">
+              <TextBlock Text="{Binding LastResult.ErrorMessage}" FontSize="12" Foreground="#DC2626" TextWrapping="Wrap" />
             </Border>
           </StackPanel>
         </Border>
@@ -191,15 +214,15 @@
         <Border Background="#FFFFFF" CornerRadius="12" BoxShadow="0 2 8 0 #20000000" Padding="20">
           <StackPanel Spacing="12">
             <Grid>
-              <TextBlock Text="📋 Activity Log" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50" />
-              <Button Content="Clear" Command="{Binding ClearLogCommand}" Background="Transparent" Foreground="#E74C3C" FontSize="12" HorizontalAlignment="Right" Padding="8,4" />
+              <TextBlock Text="📋 Activity Log" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" />
+              <Button Content="Clear" Command="{Binding ClearLogCommand}" Background="Transparent" Foreground="#DC2626" FontSize="12" HorizontalAlignment="Right" Padding="8,4" />
             </Grid>
 
             <ScrollViewer Height="200">
               <ItemsControl ItemsSource="{Binding LogMessages}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
-                    <TextBlock Text="{Binding}" FontSize="11" Foreground="#34495E" Margin="0,2" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding}" FontSize="11" Foreground="#374151" Margin="0,2" TextWrapping="Wrap" />
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>
               </ItemsControl>
@@ -211,8 +234,8 @@
     </Grid>
 
     <!-- Footer -->
-    <Border Grid.Row="2" Background="#34495E" CornerRadius="8" Padding="16" Margin="0,20,0,0">
-      <TextBlock Text="Built with C++ compression engine and modern Avalonia UI" FontSize="12" Foreground="#BDC3C7" HorizontalAlignment="Center" />
+    <Border Grid.Row="2" Background="#1E293B" CornerRadius="8" Padding="16" Margin="0,20,0,0">
+      <TextBlock Text="Built with C++ compression engine and modern Avalonia UI" FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center" />
     </Border>
   </Grid>
 

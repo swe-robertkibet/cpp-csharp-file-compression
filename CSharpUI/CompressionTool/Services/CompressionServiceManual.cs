@@ -274,6 +274,17 @@ public class CompressionServiceManual
             var metrics = new CompressionMetrics();
             int result = compress_file(algorithm, inputFile, outputFile, ref metrics);
 
+            // Debug logging for metrics values
+            Debug.WriteLine($"[CompressionServiceManual] Metrics Debug:");
+            Debug.WriteLine($"  Result: {result}");
+            Debug.WriteLine($"  Success: {metrics.Success}");
+            Debug.WriteLine($"  OriginalSizeBytes: {metrics.OriginalSizeBytes}");
+            Debug.WriteLine($"  CompressedSizeBytes: {metrics.CompressedSizeBytes}");
+            Debug.WriteLine($"  CompressionRatio: {metrics.CompressionRatio}");
+            Debug.WriteLine($"  CompressionTimeMs: {metrics.CompressionTimeMs}");
+            Debug.WriteLine($"  CompressionSpeedMbps: {metrics.CompressionSpeedMbps}");
+            Debug.WriteLine($"  ErrorMessage: '{metrics.ErrorMessage}'");
+
             return new CompressionResult
             {
                 Success = result != 0 && metrics.Success != 0,
@@ -313,6 +324,17 @@ public class CompressionServiceManual
 
             var metrics = new CompressionMetrics();
             int result = decompress_file(algorithm, inputFile, outputFile, ref metrics);
+
+            // Debug logging for decompression metrics values
+            Debug.WriteLine($"[CompressionServiceManual] Decompression Metrics Debug:");
+            Debug.WriteLine($"  Result: {result}");
+            Debug.WriteLine($"  Success: {metrics.Success}");
+            Debug.WriteLine($"  OriginalSizeBytes: {metrics.OriginalSizeBytes}");
+            Debug.WriteLine($"  CompressedSizeBytes: {metrics.CompressedSizeBytes}");
+            Debug.WriteLine($"  CompressionRatio: {metrics.CompressionRatio}");
+            Debug.WriteLine($"  DecompressionTimeMs: {metrics.DecompressionTimeMs}");
+            Debug.WriteLine($"  DecompressionSpeedMbps: {metrics.DecompressionSpeedMbps}");
+            Debug.WriteLine($"  ErrorMessage: '{metrics.ErrorMessage}'");
 
             return new CompressionResult
             {
